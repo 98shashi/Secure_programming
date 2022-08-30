@@ -1,125 +1,49 @@
-package Backpack is
+package testcode.bugs;
 
-   Useless   : constant := 0;
-   Mandatory : constant := 5;
-   type Utility is range Useless .. Mandatory;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-   Boring    : constant := 0;
-   So_Cooool : constant := 5;
-   type Fun is range Boring .. So_Cooool;
+public class BenchmarkTest00051 extends HttpServlet {
 
-   subtype Weight is Natural range 0 .. 10_000;  --  in grams
-   Scoliosis_Limit : constant := 6_000;
+    private static final long serialVersionUID = 1L;
 
-   type Item is record
-      U : Utility;
-      F : Fun;
-      W : Weight;
-   end record;
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
+    }
 
-   --  content of the backpack
-   type Content is array (Positive range <>) of Item;
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // some code
+        response.setContentType("text/html;charset=UTF-8");
 
-   type Belonging is record
-      Something : Item;
-      Available : Boolean;
-   end record;
 
-   type Extended is range 0 .. 100;
-   subtype Index is Extended range 1 .. 100;
+        SeparateClassRequest scr = new SeparateClassRequest( request );
+        String param = scr.getTheValue("BenchmarkTest00051");
 
-   --  set of stuff to choose from to populate the backpack
-   type Belongings is array (Index) of Belonging;
 
-   type Strategy is (Teacher,      --  maximize utility
-                     Mom_And_Pop,  --  maximize utility and minimize weight
-                     Kiddo);       --  maximize fun and avoid punishment
+        String a1 = "";
+        String a2 = "";
+        String osName = System.getProperty("os.name");
+        if (osName.indexOf("Windows") != -1) {
+            a1 = "cmd.exe";
+            a2 = "/c";
+        } else {
+            a1 = "sh";
+            a2 = "-c";
+        }
+        String[] args = {a1, a2, "echo " + param};
 
-   --  Choose items from Stuff to populate Choice according to Strat
-   procedure Back_To_School (Strat  : Strategy;
-                             Stuff  : in out Belongings;
-                             Choice : in out Content;
-                             Num    : out Natural);
+        ProcessBuilder pb = new ProcessBuilder(args);
 
-end Backpack;
-
-package body Backpack is
-
-   function Find_More_Useful (B : Belongings) return Extended is
-      Res : Extended := 0;
-      U   : Utility  := Useless;
-   begin
-      for I in Index loop
-         if B(I).Something.U > U then
-            Res := I;
-            U   := B(I).Something.U;
-         end if;
-      end loop;
-      return Res;
-   end Find_More_Useful;
-
-   function Find_Mandatory (B : Belongings) return Extended is
-      Res : Extended;
-   begin
-      Res := Find_More_Useful (B);
-      if B (Res).Something.U /= Mandatory then
-         Res := 0;
-      end if;
-      return Res;
-   end Find_Mandatory;
-
-   function Find_More_Fun (B : Belongings) return Extended is
-      Res : Extended;
-      F   : Fun := Boring;
-   begin
-      for I in Index loop
-         if B(I).Something.F > F then
-            Res := I;
-            F   := B(I).Something.F;
-         end if;
-      end loop;
-      return Res;
-   end Find_More_Fun;
-
-   procedure Back_To_School
-     (Strat  : Strategy;
-      Stuff  : in out Belongings;
-      Choice : in out Content;
-      Num    : out Natural)
-   is
-      Best         : Extended := 1;
-      Total_Weight : Weight   := 0;
-   begin
-      Num := 0;
-
-      for Next in Positive range Choice'Range loop
-         exit when Best = 0;  --  no more stuff to pack, exit.
-
-         case Strat is
-            when Teacher | Mom_And_Pop =>
-               Best := Find_More_Useful (Stuff);  --  take only useful stuff
-               if Strat = Mom_And_Pop and then
-                 Stuff (Best).Something.U /= Mandatory and then
-                 Total_Weight + Stuff (Best).Something.W >= Scoliosis_Limit
-               then
-                  --  Stop piling non-mandatory stuff before the scoliosis.
-                  Best := 0;
-               end if;
-            when Kiddo =>
-               Best := Find_Mandatory (Stuff);  --  start with mandatory stuff
-               if Best = 0 then
-                  Best := Find_More_Fun (Stuff);  --  then pile fun stuff
-               end if;
-         end case;
-
-         --  Found something useful/fun to bring in class? Put it in backpack.
-         if Best /= 0 then
-            Stuff (Best).Available := False;
-            Choice (Next)          := Stuff (Best).Something;
-            Total_Weight           := Total_Weight + Stuff (Best).Something.W;
-            Num                    := Num + 1;
-         end if;
-      end loop;
-   end Back_To_School;
-
-end Backpack;
+        try {
+            Process p = pb.start();
+        } catch (IOException e) {
+            System.out.println("Problem executing cmdi - java.lang.ProcessBuilder(java.lang.String[]) Test Case");
+            throw new ServletException(e);
+        }
+    }
+}
