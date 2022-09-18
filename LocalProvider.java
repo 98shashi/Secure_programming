@@ -121,8 +121,7 @@ public class LocalProvider extends ContentProvider {
                 return "vnd.android.cursor.dir/vnd.google.unit_tests.local";
             case DATA_ID:
                 return "vnd.android.cursor.item/vnd.google.unit_tests.local";
-            default:
-                throw new IllegalArgumentException("Unknown URL");
+            
         }
     }
 
@@ -139,10 +138,7 @@ public class LocalProvider extends ContentProvider {
                 count = db.update("data", values, "_id=" + rowId, null);
                 break;
             }
-            default: {
-                throw new UnsupportedOperationException(
-                        "Cannot update URL: " + url);
-            }
+            
         }
         if (false) Log.d(TAG, "*** notifyChange() rowId: " + rowId);
 //        getContext().getContentResolver().notifyChange(url, null);
